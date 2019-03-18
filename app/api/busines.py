@@ -3,7 +3,6 @@ from app.models.models import Busines
 import json
 
 
-
 def class_to_dict(obj):
     '''
     把对象(支持单个对象、list、set)转换成字典

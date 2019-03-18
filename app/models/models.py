@@ -1,7 +1,6 @@
 # coding: utf-8
 from sqlalchemy import Column, DateTime, Float, Index, String, TIMESTAMP, Table, Text, text
 from sqlalchemy.dialects.mysql import BIGINT, INTEGER, TINYINT
-# from sqlalchemy.ext.declarative import declarative_base
 from . import db
 
 # Base = declarative_base()
@@ -783,6 +782,22 @@ class User(Base):
     job = Column(String(255))
     platform = Column(INTEGER(11))
     area_id = Column(String(255))
+
+    # def generate_auth_token(self, expiration=600):
+    #     s = Serializer(app.config['SECRET_KEY'], expires_in=expiration)
+    #     return s.dumps({'id': self.id})
+    #
+    # @staticmethod
+    # def verify_auth_token(token):
+    #     s = Serializer(app.config['SECRET_KEY'])
+    #     try:
+    #         data = s.loads(token)
+    #     except SignatureExpired:
+    #         return None  # valid token, but expired
+    #     except BadSignature:
+    #         return None  # invalid token
+    #     user = User.query.get(data['id'])
+    #     return user
 
 
 class UserCompany(Base):
