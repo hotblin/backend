@@ -1,5 +1,6 @@
 from . import api
 from app.models.models import Busines
+from app import auth
 import json
 
 
@@ -26,7 +27,8 @@ def class_to_dict(obj):
         return dict
 
 
-@api.route('/busines')
+@api.route('/busines', methods=["get"])
+@auth.login_required
 def get_busines():
     b = Busines().query.all()
     for item in b:
@@ -39,3 +41,13 @@ def get_busines():
     # for item in list_b:
     #     print(json.dumps(item, default=lambda x: x.__dict__))
     return '123'
+
+
+@api.route('/bus', methods=['get'])
+def get_bus():
+    # Busines().get_data()
+    busines = Busines.query.all()
+    # busines.get_data()
+    for item in busines:
+        print(item.get_data())
+    return "33"
