@@ -1,12 +1,14 @@
 # coding: utf-8
 from sqlalchemy import Column, DateTime, Float, Index, String, TIMESTAMP, Table, Text, text
 from sqlalchemy.dialects.mysql import BIGINT, INTEGER, TINYINT
-# from sqlalchemy.ext.declarative import declarative_base
+from passlib.apps import custom_app_context
+from itsdangerous import TimedJSONWebSignatureSerializer as Serializer, SignatureExpired, BadSignature
+from flask import g
+
 from . import db
+from app import app, auth
 
-# Base = declarative_base()
 Base = db.Model
-
 metadata = Base.metadata
 
 
@@ -27,11 +29,10 @@ class Busines(Base):
     updated_at = Column(DateTime)
     _del = Column('del', TINYINT(4))
 
-    def to_json(self):
-        dict = self.__dict__
-        if "_sa_instance_state" in dict:
-            del dict["_sa_instance_state"]
-        return dict
+    def get_data(self):
+        user = User.query.filter_by(username="admin").first()
+        print(user.to_dict())
+        return "1111"
 
 
 class ChannelSetting(Base):
@@ -604,6 +605,9 @@ class Role(Base):
     updated_at = Column(DateTime)
     _del = Column('del', TINYINT(4), server_default=text("'0'"))
 
+    # def to_dict(self):
+    # pass
+
 
 class ServiceLog(Base):
     __tablename__ = 'service_log'
@@ -783,6 +787,38 @@ class User(Base):
     job = Column(String(255))
     platform = Column(INTEGER(11))
     area_id = Column(String(255))
+
+    def hash_password(self, password):
+        self.password = custom_app_context.encrypt(password)
+
+    @staticmethod
+    @auth.verify_password
+    def verify_password(username_or_token, password):
+        # return custom_app_context.verify(password, self.password)
+        user = User.verify_auth_token(username_or_token)
+        if not user:
+            user = User.query.filter_by(username=username_or_token).first()
+            if not user or not user.verify_password(password):
+                return False
+            g.user = user
+
+            return True
+
+    def generate_auth_token(self, expiration=6000):
+        s = Serializer(app.config['SECRET_KEY'], expires_in=expiration)
+        return s.dumps({'id': self.id})
+
+    @staticmethod
+    def verify_auth_token(token):
+        s = Serializer(app.config['SECRET_KEY'])
+        try:
+            data = s.loads(token)
+        except SignatureExpired:
+            return None
+        except BadSignature:
+            return None
+        user = User.query.get(data['id'])
+        return user
 
 
 class UserCompany(Base):
