@@ -1,7 +1,7 @@
 # coding: utf-8
 from sqlalchemy import Column, DateTime, Float, Index, String, TIMESTAMP, Table, Text, text
 from sqlalchemy.dialects.mysql import BIGINT, INTEGER, TINYINT
-from passlib.apps import custom_app_context
+from passlib.apps import custom_app_context as pwd_context
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer, SignatureExpired, BadSignature
 from flask import g
 
@@ -788,26 +788,20 @@ class User(Base):
     platform = Column(INTEGER(11))
     area_id = Column(String(255))
 
+    # 加密密码
     def hash_password(self, password):
-        self.password = custom_app_context.encrypt(password)
+        self.password = pwd_context.encrypt(password)
 
-    @staticmethod
-    @auth.verify_password
-    def verify_password(username_or_token, password):
-        # return custom_app_context.verify(password, self.password)
-        user = User.verify_auth_token(username_or_token)
-        if not user:
-            user = User.query.filter_by(username=username_or_token).first()
-            if not user or not user.verify_password(password):
-                return False
-            g.user = user
+    # 校验密码
+    def verify_password(self, password):
+        return pwd_context.verify(password, self.password)
 
-            return True
-
+    # 生成token
     def generate_auth_token(self, expiration=6000):
         s = Serializer(app.config['SECRET_KEY'], expires_in=expiration)
         return s.dumps({'id': self.id})
 
+    # 验证token
     @staticmethod
     def verify_auth_token(token):
         s = Serializer(app.config['SECRET_KEY'])

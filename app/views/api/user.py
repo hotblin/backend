@@ -1,6 +1,7 @@
-from flask import request, jsonify, abort
+from flask import request, jsonify, abort, g
 import datetime
 import uuid
+import logging
 
 from app.models.models import User
 from app.models.models import Role
@@ -10,25 +11,30 @@ from . import api
 from app import auth
 
 
-# @auth.verify_token
-# def verify_token(token):
-#     g.user = None
-#     try:
-#         data = serializer.loads(token)
-#     except:
-#         return False
-#     if 'username' in data:
-#         g.user = data['username']
-#         return True
-#     return False
+# @auth.verify_password
+# def verify_password(username_or_token, password):
+#     # first try to authenticate by token
+#
+#     if not user:
+#         # try to authenticate with username/password
+#         user = User.query.filter_by(username=username_or_token).first()
+#         if not user or not user.verify_password(password):
+#             return False
+#     g.user = user
+#     return True
+@auth.verify_token
+def verify_token(token):
+    logging.info('校验用户token%s' % token)
+    g.current_user = User.verify_auth_token(token)
+    return g.current_user is not None
 
 
 @api.route('/user/me', methods=["get"])
+@auth.login_required
 def get_user():
     user = User.query.filter_by(username='admin1').first().to_dict()
     role = Role.query.filter_by(id=user["role_id"]).first().to_dict()
     province = Province.query.filter_by(id=user["area_id"]).first()
-    print(province)
 
     """
     province = None if province is None else province.to_dict()
@@ -72,15 +78,14 @@ def get_user():
 @api.route("/user/login", methods=["post"])
 def user_login():
     req_data = request.json
-    user = User.query.filter_by(username=req_data['username']).first()
+    user = User.query.filter_by(username=req_data['userName']).first()
     if not user:
         abort(400)
-    elif user.verify_password(req_data['username'], req_data['password']):
+    elif user.verify_password(req_data['password']):
         token = user.generate_auth_token()
-        print('生成token', token)
         return jsonify({
             "code": 200,
-            "token": token
+            "token": token.decode('ascii')
         })
     else:
         abort(400)
@@ -89,6 +94,8 @@ def user_login():
 @api.route('/role', methods=['get'])
 def get_role():
     role_list = Role.query.all()
+    for item in role_list:
+        print(item.name)
     role_list = [item.to_dict() for item in role_list]
     return jsonify({
         "code": 200,
