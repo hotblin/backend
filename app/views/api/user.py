@@ -11,17 +11,6 @@ from . import api
 from app import auth
 
 
-# @auth.verify_password
-# def verify_password(username_or_token, password):
-#     # first try to authenticate by token
-#
-#     if not user:
-#         # try to authenticate with username/password
-#         user = User.query.filter_by(username=username_or_token).first()
-#         if not user or not user.verify_password(password):
-#             return False
-#     g.user = user
-#     return True
 @auth.verify_token
 def verify_token(token):
     logging.info('校验用户token%s' % token)
