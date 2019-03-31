@@ -11,6 +11,17 @@ from . import api
 from app import auth
 
 
+# @auth.verify_password
+# def verify_password(username_or_token, password):
+#     # first try to authenticate by token
+#
+#     if not user:
+#         # try to authenticate with username/password
+#         user = User.query.filter_by(username=username_or_token).first()
+#         if not user or not user.verify_password(password):
+#             return False
+#     g.user = user
+#     return True
 @auth.verify_token
 def verify_token(token):
     logging.info('校验用户token%s' % token)
@@ -97,6 +108,9 @@ def post_user():
     # name  bjsd   "password": "111111",
 
     req_data = request.json
+    # name = req_data.get("name") or "false"
+    # name = req_data["name"] or "6789"
+
     result = User.query.filter_by(username=req_data['username']).first()
     if result is not None:
         return jsonify({
@@ -114,7 +128,8 @@ def post_user():
     user.created_at = datetime.datetime.now()
     user.updated_at = datetime.datetime.now()
     user.area_id = req_data['areaId']
-    user.role_id = req_data["roleId"]
+    # user.role_id = req_data["roleId"] or ""
+    user.role_id = ''
     user.hash_password(req_data["password"])
     db.session.add(user)
     db.session.commit()

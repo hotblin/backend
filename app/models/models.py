@@ -3,10 +3,9 @@ from sqlalchemy import Column, DateTime, Float, Index, String, TIMESTAMP, Table,
 from sqlalchemy.dialects.mysql import BIGINT, INTEGER, TINYINT
 from passlib.apps import custom_app_context as pwd_context
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer, SignatureExpired, BadSignature
-from flask import g
 
 from . import db
-from app import app, auth
+from app import app
 
 Base = db.Model
 metadata = Base.metadata

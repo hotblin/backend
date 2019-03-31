@@ -11,7 +11,7 @@ from . import api
 @api.route('/city', methods=["get"])
 def get_city():
     # name required，可以为空
-    name = request.args.get("name")
+    name = request.args.get("name") or ""
     if name is None:
         abort(500)
     else:

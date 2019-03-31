@@ -58,7 +58,45 @@ username = request.form.get('username')
 
 ```python
 
-from flask import  request
+from flask import request
 args = request.get_json()
 args = request.json
+args.get("name")
+args["name"]
+
+```
+
+## 根据环境修改配置文件
+
+
+## 数据库迁移
+
+将模型映射到数据库
+
+flask_migrate
+
+
+sqlalchemy 筛选方法
+
+分页数据查询
+
+limit offset
+
+flask-debug-toolbar
+
+## 模型关系
+
+sqlalchemy数据关系
+一对一
+一对多
+多对一
+
+## Flask 四大内置对象
+request g current_app session config
+
+请求拦截器,请求钩子函数
+
+
+```python
+from flask import g,request,current_app
 ```
