@@ -9,7 +9,7 @@ from app.models.models import Province
 from app.models.models import db
 from . import api
 from app import auth
-
+# from app.models import
 
 # @auth.verify_password
 # def verify_password(username_or_token, password):
@@ -78,7 +78,8 @@ def get_user():
 @api.route("/user/login", methods=["post"])
 def user_login():
     req_data = request.json
-    user = User.query.filter_by(username=req_data['userName']).first()
+    username = req_data["userName"] if 'userName' in req_data else ""
+    user = User.query.filter_by(username=username).first()
     if not user:
         abort(400)
     elif user.verify_password(req_data['password']):

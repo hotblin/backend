@@ -91,7 +91,7 @@ sqlalchemy数据关系
 一对多
 多对一
 
-## Flask 四大内置对象
+## Flask 内置对象
 request g current_app session config
 
 请求拦截器,请求钩子函数
@@ -99,4 +99,21 @@ request g current_app session config
 
 ```python
 from flask import g,request,current_app
+```
+
+## flask 根据数据库生成orm模型
+
+```bash
+pip install sqlacodegen
+sqlacodegen --tables tablename --outfile ./models.py mysql+pymysql://username:password@localhost/db_name?charset=utf8
+sqlacodegen mysql+pymysql://username:password@127.0.0.1:3306/db_name?charset=utf8 > models_tmp.py
+```
+
+## 密码加密
+数据库添加salt 字段 用来用来加盐加密密码
+
+## flask token验证
+
+```bash
+
 ```
